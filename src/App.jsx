@@ -6,6 +6,7 @@ import { useUserStore } from "./stores/userStore";
 import { useQuery } from "@tanstack/react-query";
 import axios from "axios";
 import { useTokenStore } from "./stores/tokenStore";
+import { useGuildStatsStore } from "./stores/guildStatsStore";
 
 const fetchUserProfile = async (token) => {
     let resp = await axios.get("http://localhost:8000/api/user/info", {
@@ -21,6 +22,7 @@ export default function App() {
     const { token, isAuthenticated, setToken, logout } = useTokenStore()
     const { setUser, startLoading } = useUserStore()
     const [searchParams, setSearchParams] = useSearchParams()
+    const resetGuildStats = useGuildStatsStore(store => store.reset)
 
     // on first load load the token from local storage
     useEffect(() => {
@@ -44,8 +46,9 @@ export default function App() {
         if (error != null) {
             setUser(null)
             logout()
+            resetGuildStats()
         }
-    }, [data, setUser, error, logout])
+    }, [data, setUser, error, logout, resetGuildStats])
 
     let code = searchParams.get("code")
     if (code != null) {
