@@ -7,7 +7,14 @@ export const useUserStore = create((set) => ({
     isLoading: false,
 
     setUser: (user) => {
-        set({ user, selectedGuildIndex: 0, guilds: user?.guilds, isLoading: false });
+        set(state => {
+            const oldSelectedGuildId = state.guilds[state.selectedGuildIndex]?.id
+            let newId = user?.guilds?.findIndex(item => item.id == oldSelectedGuildId)
+            if (newId == -1) {
+                newId = 0
+            }
+            return { user, selectedGuildIndex: newId, guilds: user?.guilds, isLoading: false }
+        });
     },
 
     selectGuild: (guild) => {
