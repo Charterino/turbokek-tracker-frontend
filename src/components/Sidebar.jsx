@@ -12,7 +12,7 @@ export default function Sidebar() {
     const { user, guilds, selectedGuildIndex, selectGuild, isLoading } = useUserStore()
 
     return (
-        <div className="w-64 h-full bg-gray-50 border-r border-gray-200 flex flex-col">
+        <div className="w-64 h-full bg-gray-50 border-r border-gray-200 flex flex-col overflow-hidden flex-shrink-0">
             {/* Guild Selector */}
             {isAuthenticated && (
                 <div className="p-4">

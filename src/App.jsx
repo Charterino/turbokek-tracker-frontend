@@ -8,7 +8,6 @@ import axios from "axios";
 import { useTokenStore } from "./stores/tokenStore";
 
 const fetchUserProfile = async (token) => {
-    console.log(token)
     let resp = await axios.get("http://localhost:8000/api/user/info", {
         headers: {
             "Authorization": "Bearer " + token
@@ -55,12 +54,19 @@ export default function App() {
         setSearchParams({})
     }
 
+    const r = useRoutes(routes)
+
     return (
-        <div className="flex h-screen">
+        <div className="flex h-screen w-screen">
             <Sidebar />
-            <div className="flex-1 p-4 overflow-auto">
-                {useRoutes(routes)}
-            </div>
-        </div>
+            {
+                isAuthenticated ?
+                    r
+                    :
+                    <div>
+                        Sign in with Discord to view this page
+                    </div>
+            }
+        </div >
     )
 }
