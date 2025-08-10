@@ -1,4 +1,3 @@
-import { useGuildStatsStore } from "@/stores/guildStatsStore"
 import { useUserStore } from "@/stores/userStore"
 import { useQuery } from "@tanstack/react-query"
 import axios from "axios";
@@ -6,9 +5,10 @@ import { Card, CardHeader, CardTitle, CardContent } from "@/components/ui/card";
 import { Avatar, AvatarFallback, AvatarImage } from "@/components/ui/avatar";
 import { Badge } from "@/components/ui/badge";
 import { Skeleton } from "@/components/ui/skeleton";
+import { BACKEND_URL } from "@/const";
 
 const fetchGuildStats = async (guildId, accessToken) => {
-    let resp = await axios.get(`http://localhost:8000/api/guild/${guildId}/stats`, {
+    let resp = await axios.get(BACKEND_URL + `/api/guild/${guildId}/stats`, {
         headers: {
             "GuildToken": accessToken
         }
@@ -19,7 +19,6 @@ const fetchGuildStats = async (guildId, accessToken) => {
 
 export default function Index() {
     const { guilds, selectedGuildIndex, isLoading } = useUserStore()
-    const { stats, addStats } = useGuildStatsStore()
     const selectedGuild = guilds[selectedGuildIndex]
 
     const { data, error, isLoading: isLoadingStats } = useQuery({
@@ -108,14 +107,14 @@ export default function Index() {
                                 <CardTitle>Top Reactions</CardTitle>
                             </CardHeader>
                             <CardContent className="space-y-4 h-full overflow-y-auto">
-                                {data.topReactions.map((reaction, index) => (
+                                {data.topReactions.map((reaction) => (
                                     <div key={reaction.id} className="flex items-center justify-between">
                                         <div className="flex items-center space-x-3">
                                             <Avatar className="rounded-none">
-                                                <AvatarImage src={reaction.url} alt={reaction.name} />
-                                                <AvatarFallback>{reaction.name}</AvatarFallback>
+                                                <AvatarImage src={data.reactionUrls[reaction.id]} alt={data.reactionNames[reaction.id]} />
+                                                <AvatarFallback>{data.reactionNames[reaction.id]}</AvatarFallback>
                                             </Avatar>
-                                            <div className="font-medium">{reaction.name}</div>
+                                            <div className="font-medium">{data.reactionNames[reaction.id]}</div>
                                         </div>
                                         <Badge variant="outline">{reaction.count} uses</Badge>
                                     </div>
@@ -129,14 +128,14 @@ export default function Index() {
                                 <CardTitle>Top Receivers</CardTitle>
                             </CardHeader>
                             <CardContent className="space-y-4 h-full overflow-y-auto">
-                                {data.topReceivers.map((user, index) => (
+                                {data.topReceivers.map((user) => (
                                     <div key={user.id} className="flex items-center justify-between">
                                         <div className="flex items-center space-x-3">
                                             <Avatar>
-                                                <AvatarImage src={user.avatar} alt={user.name} />
-                                                <AvatarFallback>{user.name[0]}</AvatarFallback>
+                                                <AvatarImage src={data.userAvatars[user.id]} alt={data.userNames[user.id]} />
+                                                <AvatarFallback>{data.userNames[user.id]}</AvatarFallback>
                                             </Avatar>
-                                            <span>{user.name || 'Unknown User'}</span>
+                                            <span>{data.userNames[user.id]}</span>
                                         </div>
                                         <Badge variant="outline">{user.count} received</Badge>
                                     </div>
@@ -154,10 +153,10 @@ export default function Index() {
                                     <div key={user.id} className="flex items-center justify-between">
                                         <div className="flex items-center space-x-3">
                                             <Avatar>
-                                                <AvatarImage src={user.avatar} alt={user.name} />
-                                                <AvatarFallback>{user.name[0]}</AvatarFallback>
+                                                <AvatarImage src={data.userAvatars[user.id]} alt={data.userNames[user.id]} />
+                                                <AvatarFallback>{data.userNames[user.id]}</AvatarFallback>
                                             </Avatar>
-                                            <span>{user.name || 'Unknown User'}</span>
+                                            <span>{data.userNames[user.id]}</span>
                                         </div>
                                         <Badge variant="outline">{user.count} given</Badge>
                                     </div>

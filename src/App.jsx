@@ -6,10 +6,10 @@ import { useUserStore } from "./stores/userStore";
 import { useQuery } from "@tanstack/react-query";
 import axios from "axios";
 import { useTokenStore } from "./stores/tokenStore";
-import { useGuildStatsStore } from "./stores/guildStatsStore";
+import { BACKEND_URL } from "./const";
 
 const fetchUserProfile = async (token) => {
-    let resp = await axios.get("http://localhost:8000/api/user/info", {
+    let resp = await axios.get(BACKEND_URL + "/api/user/info", {
         headers: {
             "Authorization": "Bearer " + token
         }
@@ -22,7 +22,6 @@ export default function App() {
     const { token, isAuthenticated, setToken, logout } = useTokenStore()
     const { setUser, startLoading } = useUserStore()
     const [searchParams, setSearchParams] = useSearchParams()
-    const resetGuildStats = useGuildStatsStore(store => store.reset)
 
     // on first load load the token from local storage
     useEffect(() => {
@@ -46,9 +45,8 @@ export default function App() {
         if (error != null) {
             setUser(null)
             logout()
-            resetGuildStats()
         }
-    }, [data, setUser, error, logout, resetGuildStats])
+    }, [data, setUser, error, logout])
 
     let code = searchParams.get("code")
     if (code != null) {
@@ -62,14 +60,16 @@ export default function App() {
     return (
         <div className="flex h-screen w-screen">
             <Sidebar />
-            {
-                isAuthenticated ?
-                    r
-                    :
-                    <div>
-                        Sign in with Discord to view this page
-                    </div>
-            }
+            <div className="flex-1 overflow-auto">
+                {
+                    isAuthenticated ?
+                        r
+                        :
+                        <div>
+                            Sign in with Discord to view this page
+                        </div>
+                }
+            </div>
         </div >
     )
 }

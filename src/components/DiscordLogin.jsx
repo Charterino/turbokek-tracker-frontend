@@ -1,6 +1,8 @@
+import { BACKEND_URL } from "@/const";
+
 const handleSignIn = () => {
     const clientId = '1402581946521092247';
-    const redirectUri = encodeURIComponent('http://localhost:8000/api/discord/callback');
+    const redirectUri = encodeURIComponent(BACKEND_URL + '/api/discord/callback');
     const scope = encodeURIComponent('identify guilds guilds.members.read');
 
     window.location.href = `https://discord.com/oauth2/authorize?response_type=code&client_id=${clientId}&scope=${scope}&redirect_uri=${redirectUri}&integration_type=0`;
