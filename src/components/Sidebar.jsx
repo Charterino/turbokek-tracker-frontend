@@ -5,6 +5,7 @@ import { Avatar, AvatarImage } from './ui/avatar'
 import { useTokenStore } from '@/stores/tokenStore'
 import { Skeleton } from './ui/skeleton'
 import DiscordLogin from './DiscordLogin'
+import { NavLink } from 'react-router-dom'
 
 export default function Sidebar() {
     const logout = useTokenStore(store => store.logout)
@@ -70,15 +71,15 @@ export default function Sidebar() {
                         </>
                     ) : (
                         <>
-                            <a href="#" className="block px-3 py-2 rounded-md text-sm font-medium text-gray-700 hover:bg-gray-100">
+                            <NavLink to="/" className={({ isActive }) => `block px-3 py-2 rounded-md text-sm font-medium ${isActive ? 'bg-gray-200 text-gray-900' : 'text-gray-700 hover:bg-gray-100'}`}>
                                 Dashboard
-                            </a>
-                            <a href="#" className="block px-3 py-2 rounded-md text-sm font-medium text-gray-700 hover:bg-gray-100">
-                                Settings
-                            </a>
-                            <a href="#" className="block px-3 py-2 rounded-md text-sm font-medium text-gray-700 hover:bg-gray-100">
+                            </NavLink>
+                            <NavLink to="/reports" className={({ isActive }) => `block px-3 py-2 rounded-md text-sm font-medium ${isActive ? 'bg-gray-200 text-gray-900' : 'text-gray-700 hover:bg-gray-100'}`}>
+                                Reports
+                            </NavLink>
+                            <NavLink to="/help" className={({ isActive }) => `block px-3 py-2 rounded-md text-sm font-medium ${isActive ? 'bg-gray-200 text-gray-900' : 'text-gray-700 hover:bg-gray-100'}`}>
                                 Help
-                            </a>
+                            </NavLink>
                         </>
                     )}
                 </nav>
