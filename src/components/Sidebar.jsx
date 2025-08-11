@@ -65,9 +65,6 @@ export default function Sidebar() {
                             <div className="block px-3 py-2">
                                 <Skeleton className="h-5 w-20" />
                             </div>
-                            <div className="block px-3 py-2">
-                                <Skeleton className="h-5 w-16" />
-                            </div>
                         </>
                     ) : (
                         <>
@@ -76,9 +73,6 @@ export default function Sidebar() {
                             </NavLink>
                             <NavLink to="/reports" className={({ isActive }) => `block px-3 py-2 rounded-md text-sm font-medium ${isActive ? 'bg-gray-200 text-gray-900' : 'text-gray-700 hover:bg-gray-100'}`}>
                                 Reports
-                            </NavLink>
-                            <NavLink to="/help" className={({ isActive }) => `block px-3 py-2 rounded-md text-sm font-medium ${isActive ? 'bg-gray-200 text-gray-900' : 'text-gray-700 hover:bg-gray-100'}`}>
-                                Help
                             </NavLink>
                         </>
                     )}
