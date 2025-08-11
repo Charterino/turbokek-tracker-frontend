@@ -31,6 +31,7 @@
         finalDist = pkgs.runCommand "finalDist" { } ''
           mkdir -p $out/dist
           cp -r ${npmBuild}/lib/node_modules/turbokek-tracker-frontend/dist/* $out/dist
+          cp ${npmBuild}/lib/node_modules/turbokek-tracker-frontend/Caddyfile $out/Caddyfile
         '';
 
         dockerImage = pkgs.dockerTools.buildImage {
@@ -43,9 +44,9 @@
           config = {
             Cmd = [
               "${pkgs.caddy}/bin/caddy"
-              "file-server"
-              "--root"
-              "/dist"
+              "run"
+              "-c"
+              "/Caddyfile"
             ];
             ExposedPorts = {
               "80/tcp" = { };

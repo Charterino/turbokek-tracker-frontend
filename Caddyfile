@@ -1,0 +1,9 @@
+http://*:80 {
+  root * /dist
+  file_server
+  handle_errors 404 {
+    rewrite * /index.html
+    root * /dist
+    file_server
+  }
+}
