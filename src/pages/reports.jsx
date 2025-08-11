@@ -107,8 +107,10 @@ export default function Reports() {
     const [isGeneratingMd, setIsGeneratingMd] = useState(false)
 
     // Whenever a new guild is selected, load the groups from local storage
+    const [loadedFromStorage, setLoadedFromStorage] = useState("")
     useEffect(() => {
         if (!selectedGuild?.id) return;
+        setLoadedFromStorage(selectedGuild.id)
 
         const localStorageKey = `guildReportGroups_${selectedGuild.id}`;
         try {
@@ -147,6 +149,7 @@ export default function Reports() {
     // Whenever groups changes, serialize it to localStorage
     useEffect(() => {
         if (!selectedGuild?.id) return;
+        if (loadedFromStorage != selectedGuild.id) return
 
         const localStorageKey = `guildReportGroups_${selectedGuild.id}`;
         try {
@@ -158,7 +161,13 @@ export default function Reports() {
         } catch (error) {
             console.error("Failed to save groups to localStorage", error);
         }
-    }, [groups, selectedGuild?.id]);
+    }, [groups, selectedGuild?.id, loadedFromStorage]);
+
+    // Whenever guildId changes, reset the markdown
+    useEffect(() => {
+        if (!selectedGuild?.id) return
+        setMarkdown('')
+    }, [selectedGuild, setMarkdown])
 
     const handleAddReaction = () => {
         if (!groupName || !reactionId) return
@@ -309,7 +318,28 @@ ${Object.entries(groupCountsByUser).map(([groupId, { sortedArray }]) => {
                 <CardTitle>Guild Reports</CardTitle>
             </CardHeader>
             <CardContent className="space-y-4">
-                {reactionsData != undefined &&
+                {(reactionsData == undefined || reactionsMap == undefined || loadedFromStorage != selectedGuild?.id) ? (
+                    <div className="space-y-4">
+                        <div className="space-y-2">
+                            <div className="flex items-center space-x-2 grid-cols-3">
+                                <Skeleton className="h-10 w-2/5" />
+                                <Skeleton className="h-10 w-2/5" />
+                                <Skeleton className="h-10 w-1/5" />
+                            </div>
+                        </div>
+                        <Skeleton className="h-6 w-48" />
+                        <div className="space-y-2">
+                            <Skeleton className="h-24 w-full" />
+                            <Skeleton className="h-24 w-full" />
+                        </div>
+                        <div className="mt-6 pt-4 border-t">
+                            <div className="flex items-center space-x-4 grid-cols-2">
+                                <Skeleton className="h-10 w-4/5" />
+                                <Skeleton className="h-10 w-1/5" />
+                            </div>
+                        </div>
+                    </div>
+                ) : (
                     <div className="space-y-4">
                         <div className="space-y-2">
                             <div className="flex items-center space-x-2 grid-cols-3">
@@ -544,7 +574,7 @@ ${Object.entries(groupCountsByUser).map(([groupId, { sortedArray }]) => {
                             )}
                         </div>
                     </div>
-                }
+                )}
             </CardContent>
         </Card>
     );
