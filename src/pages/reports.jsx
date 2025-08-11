@@ -166,8 +166,9 @@ export default function Reports() {
     // Whenever guildId changes, reset the markdown
     useEffect(() => {
         if (!selectedGuild?.id) return
+        if (loadedFromStorage == selectedGuild.id) return
         setMarkdown('')
-    }, [selectedGuild, setMarkdown])
+    }, [selectedGuild, setMarkdown, loadedFromStorage])
 
     const handleAddReaction = () => {
         if (!groupName || !reactionId) return
