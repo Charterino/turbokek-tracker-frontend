@@ -1,4 +1,4 @@
-http://*:80 {
+http:// {
   root * /dist
   file_server
   handle_errors 404 {
