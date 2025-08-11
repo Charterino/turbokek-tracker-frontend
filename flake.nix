@@ -18,20 +18,17 @@
         pkgs = import nixpkgs {
           inherit system;
         };
-	
-	npmBuild = pkgs.buildNpmPackage {
+
+        npmBuild = pkgs.buildNpmPackage {
           pname = "turbokek-tracker-frontend";
           version = "1.0.0";
-          src = ./.;
+          # Dont pass the .gitignore into src because it's going to be cleanSource'd anyway, and our .gitignore removes 'dist', which breaks everything
+          src = pkgs.nix-gitignore.gitignoreSource [ ".gitignore" ] ./.;
 
-          npmDeps = pkgs.importNpmLock {
-            npmRoot = ./.;
-          };
-
-          npmConfigHook = pkgs.importNpmLock.npmConfigHook;
+          npmDepsHash = "sha256-36lAZ+SfNqvRWC6dgWnhTz65BkyFKWbPpfKNSazdHjM=";
         };
 
-        finalDist = pkgs.runCommand "finalDist" {} ''
+        finalDist = pkgs.runCommand "finalDist" { } ''
           mkdir -p $out/dist
           cp -r ${npmBuild}/lib/node_modules/turbokek-tracker-frontend/dist/* $out/dist
         '';
@@ -55,15 +52,15 @@
             };
           };
         };
-     in
+      in
       with pkgs;
       {
         devShells.default = mkShell {
           packages = [ nodejs_22 ];
         };
-	packages = {
-	  inherit dockerImage;
-	};
+        packages = {
+          inherit dockerImage;
+        };
       }
     );
 }
