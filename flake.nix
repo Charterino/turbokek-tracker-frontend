@@ -18,12 +18,52 @@
         pkgs = import nixpkgs {
           inherit system;
         };
-      in
+	
+	npmBuild = pkgs.buildNpmPackage {
+          pname = "turbokek-tracker-frontend";
+          version = "1.0.0";
+          src = ./.;
+
+          npmDeps = pkgs.importNpmLock {
+            npmRoot = ./.;
+          };
+
+          npmConfigHook = pkgs.importNpmLock.npmConfigHook;
+        };
+
+        finalDist = pkgs.runCommand "finalDist" {} ''
+          mkdir -p $out/dist
+          cp -r ${npmBuild}/lib/node_modules/turbokek-tracker-frontend/dist/* $out/dist
+        '';
+
+        dockerImage = pkgs.dockerTools.buildImage {
+          name = "turbokek-tracker-frontend";
+          tag = "latest";
+          created = "now";
+          copyToRoot = [
+            finalDist
+          ];
+          config = {
+            Cmd = [
+              "${pkgs.caddy}/bin/caddy"
+              "file-server"
+              "--root"
+              "/dist"
+            ];
+            ExposedPorts = {
+              "80/tcp" = { };
+            };
+          };
+        };
+     in
       with pkgs;
       {
         devShells.default = mkShell {
           packages = [ nodejs_22 ];
         };
+	packages = {
+	  inherit dockerImage;
+	};
       }
     );
 }
