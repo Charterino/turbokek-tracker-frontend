@@ -2,7 +2,7 @@ import { BACKEND_URL } from "@/const";
 import { useUserStore } from "@/stores/userStore";
 import { useQuery } from "@tanstack/react-query";
 import axios from "axios";
-import { useState, useMemo } from "react";
+import { useState, useMemo, useEffect } from "react";
 import { Calendar } from "@/components/ui/calendar";
 import { Button } from "@/components/ui/button";
 import { Card, CardHeader, CardTitle, CardContent } from "@/components/ui/card";
@@ -72,7 +72,7 @@ export default function Reports() {
     const { data, isLoading: isLoadingReport, isRefetching: isRefetchingReport, refetch } = useQuery({
         queryKey: ['guildReport', selectedGuild?.id],
         queryFn: () => fetchGuildReport(
-            selectedGuild.id,
+            selectedGuild?.id,
             selectedGuild?.guildAccessToken,
             dateRange.from.getTime(),
             dateRange.to.getTime() + 86_400_000
@@ -93,9 +93,9 @@ export default function Reports() {
     const [isPopoverOpen, setIsPopoverOpen] = useState(false)
     const [isGroupPopoverOpen, setIsGroupPopoverOpen] = useState(false)
     // Current groups, loaded from localstorage on startup
-    const [groups, setGroups] = useState(new Map())
+    const [groups, setGroups] = useState(new Map());
     // List of reactions already used
-    const [usedReactions, setUsedReactions] = useState(new Set())
+    const [usedReactions, setUsedReactions] = useState(new Set());
     // List of groups which have an invalid number of points
     // If it's not empty, the generate button is not active
     const [invalidGroups, setInvalidGroups] = useState(new Set());
@@ -105,6 +105,60 @@ export default function Reports() {
     const [copied, setCopied] = useState(false);
 
     const [isGeneratingMd, setIsGeneratingMd] = useState(false)
+
+    // Whenever a new guild is selected, load the groups from local storage
+    useEffect(() => {
+        if (!selectedGuild?.id) return;
+
+        const localStorageKey = `guildReportGroups_${selectedGuild.id}`;
+        try {
+            const storedGroups = localStorage.getItem(localStorageKey);
+            if (storedGroups) {
+                const parsed = JSON.parse(storedGroups);
+                const loadedGroups = new Map(parsed.map(([key, value]) => [key, { ...value, reactions: new Set(value.reactions) }]));
+                setGroups(loadedGroups);
+
+                const reactions = new Set();
+                loadedGroups.forEach(group => {
+                    group.reactions.forEach(reactionId => reactions.add(reactionId));
+                });
+                setUsedReactions(reactions);
+
+                const invalid = new Set();
+                loadedGroups.forEach((group, groupName) => {
+                    if (isNaN(group.points)) {
+                        invalid.add(groupName);
+                    }
+                });
+                setInvalidGroups(invalid);
+            } else {
+                setGroups(new Map());
+                setUsedReactions(new Set());
+                setInvalidGroups(new Set());
+            }
+        } catch (error) {
+            console.error("Failed to load groups from localStorage", error);
+            setGroups(new Map());
+            setUsedReactions(new Set());
+            setInvalidGroups(new Set());
+        }
+    }, [selectedGuild?.id]);
+
+    // Whenever groups changes, serialize it to localStorage
+    useEffect(() => {
+        if (!selectedGuild?.id) return;
+
+        const localStorageKey = `guildReportGroups_${selectedGuild.id}`;
+        try {
+            const serializableGroups = Array.from(groups.entries()).map(([key, value]) => [
+                key,
+                { ...value, reactions: Array.from(value.reactions) },
+            ]);
+            localStorage.setItem(localStorageKey, JSON.stringify(serializableGroups));
+        } catch (error) {
+            console.error("Failed to save groups to localStorage", error);
+        }
+    }, [groups, selectedGuild?.id]);
 
     const handleAddReaction = () => {
         if (!groupName || !reactionId) return
@@ -127,7 +181,6 @@ export default function Reports() {
         })
         setUsedReactions(prev => new Set(prev).add(reactionId))
 
-        // Clear inputs
         setReactionId('')
     };
 
@@ -359,7 +412,7 @@ ${Object.entries(groupCountsByUser).map(([groupId, { sortedArray }]) => {
                                                 <div className="flex items-center gap-1">
                                                     <span className="text-xs text-muted-foreground">Points:</span>
                                                     <Input
-                                                        defaultValue={"0"}
+                                                        defaultValue={group.points}
                                                         onChange={(e) => {
                                                             const value = e.target.value;
                                                             const newValue = parseInt(value);
