@@ -51,7 +51,7 @@ export default function App() {
     let code = searchParams.get("code")
     if (code != null) {
         setToken(code)
-        localStorage.setItem('token', token);
+        localStorage.setItem('token', code);
         setSearchParams({})
     }
 
