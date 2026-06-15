@@ -1,1 +1,1 @@
-export const BACKEND_URL = "https://turbokek-tracker.charterino.ru"
+export const BACKEND_URL = "https://turbokek-tracker.bangbangnigga.fyi"
